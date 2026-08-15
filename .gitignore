@@ -1,5 +1,12 @@
 # Python cache
 __pycache__/
 *.py[cod]
+
+# Environment files
 .env
 .venv/
+venv/
+backend/venv/
+
+# Uploaded documents
+uploads/

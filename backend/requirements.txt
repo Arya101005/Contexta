@@ -1,2 +1,14 @@
-sentence-transformers
+fastapi
+uvicorn[standard]
+
+sqlalchemy
+psycopg2-binary
+
+python-dotenv
+python-multipart
+
 qdrant-client
+sentence-transformers
+
+pypdf
+rank-bm25
