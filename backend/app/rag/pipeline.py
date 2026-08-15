@@ -91,9 +91,9 @@ class RAGPipeline:
             metadata = chunk.get("metadata", {})
 
             sources.append({
-                "document_id": metadata.get("document_id"),
-                "page": metadata.get("page"),
-                "section": metadata.get("section")
+                "document_id": metadata.get("doc_id"),
+                "page": metadata.get("page_number"),
+                "section": metadata.get("section_title")
             })
 
         return sources
