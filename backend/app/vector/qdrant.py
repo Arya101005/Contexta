@@ -1,14 +1,4 @@
 import os
-<<<<<<< HEAD
-
-from dotenv import load_dotenv
-from qdrant_client import QdrantClient, models
-from embeddings import embed
-
-
-# Load QDRANT_URL and QDRANT_API_KEY from .env
-load_dotenv()
-=======
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,7 +10,6 @@ from backend.app.vector.embeddings import embed
 # Load QDRANT_URL and QDRANT_API_KEY from backend/.env
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
->>>>>>> 4669588 (add retrieval cache and citations)
 
 db = QdrantClient(
     url=os.getenv("QDRANT_URL"),
@@ -31,21 +20,6 @@ COLLECTION = "document"
 
 
 # BGE-base-en-v1.5 creates 768-dimensional vectors.
-<<<<<<< HEAD
-# COSINE measures how similar two vectors are.
-db.create_collection(
-    collection_name=COLLECTION,
-    vectors_config=models.VectorParams(
-        size=768,
-        distance=models.Distance.COSINE,
-    ),
-)
-
-
-def store(id: int, text: str):
-    """Convert text to a vector and store it in Qdrant."""
-
-=======
 if not db.collection_exists(COLLECTION):
     db.create_collection(
         collection_name=COLLECTION,
@@ -58,71 +32,75 @@ if not db.collection_exists(COLLECTION):
 
 def store(chunk_id, text: str, payload: dict):
     """Convert chunk text to a vector and store it in Qdrant."""
->>>>>>> 4669588 (add retrieval cache and citations)
     db.upsert(
         collection_name=COLLECTION,
         points=[
             models.PointStruct(
-<<<<<<< HEAD
-                id=id,
-                vector=embed(text),
-                payload={"content": text},
-=======
                 id=chunk_id,
                 vector=embed(text),
                 payload=payload,
->>>>>>> 4669588 (add retrieval cache and citations)
             )
         ],
     )
 
 
-def search(question: str, limit: int = 5):
-<<<<<<< HEAD
-    """Find the texts whose meaning is closest to the question."""
+def store_batch(points: list[tuple[str, str, dict]]):
+    """Convert multiple chunk texts to vectors and store them in Qdrant in one upsert."""
+    from backend.app.vector.embeddings import embed_batch
 
-=======
+    chunk_ids = [p[0] for p in points]
+    texts = [p[1] for p in points]
+    payloads = [p[2] for p in points]
+    vectors = embed_batch(texts)
+
+    db.upsert(
+        collection_name=COLLECTION,
+        points=[
+            models.PointStruct(
+                id=chunk_id,
+                vector=vector,
+                payload=payload,
+            )
+            for chunk_id, vector, payload in zip(chunk_ids, vectors, payloads)
+        ],
+    )
+
+
+def delete_by_doc_id(doc_id: str):
+    """Delete all chunks associated with a document from Qdrant."""
+    db.delete(
+        collection_name=COLLECTION,
+        points_selector=models.FilterSelector(
+            filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="doc_id",
+                        match=models.MatchValue(value=doc_id),
+                    )
+                ]
+            )
+        ),
+    )
+
+
+def search(question: str, limit: int = 5, document_ids: list[str] | None = None):
     """Find the chunks whose meaning is closest to the question."""
->>>>>>> 4669588 (add retrieval cache and citations)
+    query_filter = None
+    if document_ids:
+        query_filter = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="doc_id",
+                    match=models.MatchAny(any=document_ids),
+                )
+            ]
+        )
+
     results = db.query_points(
         collection_name=COLLECTION,
         query=embed(question),
         limit=limit,
         with_payload=True,
+        query_filter=query_filter,
     ).points
-<<<<<<< HEAD
-
     return results
-
-
-# ------------------------------------------------------------
-# Sample data
-# ------------------------------------------------------------
-
-texts = [
-    "I love eating pizza.",
-    "Pizza is my favorite food.",
-    "The weather is very hot today.",
-    "Dogs are friendly animals.",
-    "I enjoy playing football.",
-]
-
-for id, text in enumerate(texts, start=1):
-    store(id, text)
-
-
-# ------------------------------------------------------------
-# Test semantic search
-# ------------------------------------------------------------
-
-question = "I really like pizza."
-print(f"\nQUERY: {question}\n")
-
-for result in search(question):
-
-    print(f"Score:   {result.score:.4f}")
-    print(f"Text:    {result.payload['content']}")
-    print("-" * 60)
-=======
-    return results
->>>>>>> 4669588 (add retrieval cache and citations)

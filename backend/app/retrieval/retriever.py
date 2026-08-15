@@ -8,7 +8,6 @@ def bm25_search(query):
 
 
 def remove_duplicates(results):
-    # Remove duplicates based on chunk_id
     seen = set()
     unique = []
     for r in results:
@@ -19,7 +18,6 @@ def remove_duplicates(results):
     return unique
 
 
-@lru_cache(maxsize=100)
 def retrieve(query, document_ids=None):
     """
     Retrieve relevant chunks using
@@ -27,7 +25,7 @@ def retrieve(query, document_ids=None):
     """
 
     # 1. Dense retrieval from Qdrant
-    dense_results = dense_search(query)
+    dense_results = dense_search(query, document_ids=document_ids)
 
     # 2. Keyword retrieval using BM25
     bm25_results = bm25_search(query)

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models.models import ChatSession, Document, Message
 from backend.app.rag import build_pipeline, ingest_pdf
+from backend.app.vector.qdrant import delete_by_doc_id
 
 
 router = APIRouter()
@@ -53,7 +54,9 @@ async def upload_document(
 
     # Ingest into RAG pipeline
     try:
-        chunks = ingest_pdf(str(file_path))
+        chunks, doc_id = ingest_pdf(str(file_path))
+        document.doc_id = doc_id
+        document.page_count = len(chunks)
         document.status = "processed"
         db.commit()
         db.refresh(document)
@@ -92,6 +95,7 @@ def get_documents(
         {
             "id": document.id,
             "filename": document.filename,
+            "doc_id": document.doc_id,
             "file_path": document.file_path,
             "uploaded_at": document.uploaded_at,
             "status": document.status,
@@ -107,7 +111,7 @@ def delete_document(
     db: Session = Depends(get_db)
 ):
     """
-    Delete a document from PostgreSQL.
+    Delete a document from PostgreSQL and its chunks from Qdrant.
     """
 
     document = (
@@ -121,6 +125,10 @@ def delete_document(
             status_code=404,
             detail="Document not found"
         )
+
+    # Delete chunks from Qdrant first
+    if document.doc_id:
+        delete_by_doc_id(document.doc_id)
 
     # Delete the physical file if it exists
     if document.file_path:
@@ -208,7 +216,8 @@ def create_chat(
     # Answer using the RAG pipeline (built lazily to avoid loading models at import)
     try:
         pipeline = build_pipeline()
-        response = pipeline.answer_query(question)
+        doc_ids = [document.doc_id] if document_id is not None and document else None
+        response = pipeline.answer_query(question, document_ids=doc_ids)
         message.answer = response.answer
         db.commit()
         db.refresh(message)
@@ -246,7 +255,7 @@ def get_chat_history(
         raise HTTPException(
             status_code=404,
         detail="Chat session not found"
-    )
+        )
 
     messages = (
         db.query(Message)

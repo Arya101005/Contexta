@@ -48,14 +48,14 @@ tests/
 # Backend
 cd backend
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+.\venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+python run.py
 
 # Frontend
 cd frontend
 npm install
-npm run dev
+npm start
 ```
 
 ## API Endpoints

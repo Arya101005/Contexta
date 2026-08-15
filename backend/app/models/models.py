@@ -11,6 +11,7 @@ class Document(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(255), nullable=False)
+    doc_id = Column(String(64), unique=True, nullable=True)
     file_path = Column(String(500), nullable=True)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
     status = Column(String(50), default="uploaded")

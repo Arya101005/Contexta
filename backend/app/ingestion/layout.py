@@ -89,6 +89,9 @@ class LayoutAnalyzer:
 
     def ocr_page(self, page: pymupdf.Page, dpi: int = 300) -> str:
         """Runs Tesseract OCR on scanned/unselectable pages."""
-        pix = page.get_pixmap(dpi=dpi)
-        img = Image.open(io.BytesIO(pix.tobytes("png")))
-        return pytesseract.image_to_string(img).strip()
+        try:
+            pix = page.get_pixmap(dpi=dpi)
+            img = Image.open(io.BytesIO(pix.tobytes("png")))
+            return pytesseract.image_to_string(img).strip()
+        except Exception:
+            return ""
