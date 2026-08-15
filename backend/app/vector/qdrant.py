@@ -40,9 +40,40 @@ def store(chunk_id, text: str, payload: dict):
                 vector=embed(text),
                 payload=payload,
             )
+            for chunk_id, vector, payload in zip(chunk_ids, vectors, payloads)
         ],
     )
 
+
+def delete_by_doc_id(doc_id: str):
+    """Delete all chunks associated with a document from Qdrant."""
+    db.delete(
+        collection_name=COLLECTION,
+        points_selector=models.FilterSelector(
+            filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="doc_id",
+                        match=models.MatchValue(value=doc_id),
+                    )
+                ]
+            )
+        ),
+    )
+
+
+def search(question: str, limit: int = 5, document_ids: list[str] | None = None):
+    """Find the chunks whose meaning is closest to the question."""
+    query_filter = None
+    if document_ids:
+        query_filter = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="doc_id",
+                    match=models.MatchAny(any=document_ids),
+                )
+            ]
+        )
 
 def search(question: str, limit: int = 5):
     """Find the chunks whose meaning is closest to the question."""
@@ -51,5 +82,6 @@ def search(question: str, limit: int = 5):
         query=embed(question),
         limit=limit,
         with_payload=True,
+        query_filter=query_filter,
     ).points
     return results

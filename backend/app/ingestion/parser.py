@@ -33,6 +33,16 @@ class DocumentParser:
                     "is_bold": False
                 }]
             else:
+                try:
+                    elements = self.layout_analyzer.extract_page_layout(page)
+                except Exception:
+                    elements = [{
+                        "type": "body",
+                        "text": raw_text,
+                        "bbox": list(page.rect),
+                        "font_size": 10,
+                        "is_bold": False
+                    }]
                 elements = self.layout_analyzer.extract_page_layout(page)
 
             parsed_pages.append({

@@ -1,5 +1,15 @@
 sentence-transformers
 qdrant-client
+openai
+fastapi
+uvicorn[standard]
+sqlalchemy>=2.0.0
+python-dotenv
+pydantic>=2.5.0
+python-multipart
+pymupdf>=1.24.0
+pytesseract>=0.3.10
+pillow>=10.0.0
 pymupdf>=1.24.0
 pytesseract>=0.3.10
 pillow>=10.0.0

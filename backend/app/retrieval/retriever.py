@@ -27,6 +27,7 @@ def retrieve(query, document_ids=None):
     """
 
     # 1. Dense retrieval from Qdrant
+    dense_results = dense_search(query, document_ids=document_ids)
     dense_results = dense_search(query)
 
     # 2. Keyword retrieval using BM25
