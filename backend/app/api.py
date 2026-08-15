@@ -57,6 +57,7 @@ async def upload_document(
         chunks, doc_id = ingest_pdf(str(file_path))
         document.doc_id = doc_id
         document.page_count = len(chunks)
+        chunks = ingest_pdf(str(file_path))
         document.status = "processed"
         db.commit()
         db.refresh(document)
@@ -112,6 +113,7 @@ def delete_document(
 ):
     """
     Delete a document from PostgreSQL and its chunks from Qdrant.
+    Delete a document from PostgreSQL.
     """
 
     document = (
@@ -218,6 +220,7 @@ def create_chat(
         pipeline = build_pipeline()
         doc_ids = [document.doc_id] if document_id is not None and document else None
         response = pipeline.answer_query(question, document_ids=doc_ids)
+        response = pipeline.answer_query(question)
         message.answer = response.answer
         db.commit()
         db.refresh(message)
@@ -256,6 +259,7 @@ def get_chat_history(
             status_code=404,
         detail="Chat session not found"
         )
+    )
 
     messages = (
         db.query(Message)

@@ -1,5 +1,8 @@
+<<<<<<< feature/vector-embeddings
 from functools import lru_cache
 
+=======
+>>>>>>> dev
 from backend.app.rag.pipeline import RAGPipeline
 from backend.app.retrieval.retriever import HybridRetriever
 from backend.app.retrieval.reranker import Reranker
@@ -19,6 +22,7 @@ class ContextBuilder:
             prefix = metadata.get("context_prefix", "")
             parts.append(f"{prefix}{text}" if prefix else text)
         return "\n\n".join(parts)
+        return "\n\n".join(c.get("text", "") for c in chunks)
 
 
 class LLM:
@@ -57,6 +61,13 @@ def ingest_pdf(file_path: str):
     parsed_pages = DocumentParser().parse(
         file_bytes=document["file_bytes"],
         doc_id=doc_id,
+    from backend.app.vector.qdrant import store
+
+    document = DocumentLoader.load_from_path(file_path)
+
+    parsed_pages = DocumentParser().parse(
+        file_bytes=document["file_bytes"],
+        doc_id=document["doc_id"],
         filename=document["metadata"]["filename"],
     )
 
@@ -73,3 +84,11 @@ def ingest_pdf(file_path: str):
     store_batch(points)
 
     return chunks, doc_id
+    for chunk in chunks:
+        store(
+            chunk_id=chunk.chunk_id,
+            text=chunk.context_prefix + chunk.text,
+            payload=chunk.to_qdrant_payload(),
+        )
+
+    return chunks

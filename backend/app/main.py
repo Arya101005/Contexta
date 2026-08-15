@@ -5,6 +5,8 @@ from backend.app.api import router
 from backend.app.database import Base, engine
 from backend.app.models import models
 
+from backend.app.api import router
+
 
 app = FastAPI(
     title="Contexta API",

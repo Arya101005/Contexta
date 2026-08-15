@@ -43,6 +43,7 @@ class DocumentParser:
                         "font_size": 10,
                         "is_bold": False
                     }]
+                elements = self.layout_analyzer.extract_page_layout(page)
 
             parsed_pages.append({
                 "doc_id": doc_id,

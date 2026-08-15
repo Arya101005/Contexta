@@ -40,27 +40,6 @@ def store(chunk_id, text: str, payload: dict):
                 vector=embed(text),
                 payload=payload,
             )
-        ],
-    )
-
-
-def store_batch(points: list[tuple[str, str, dict]]):
-    """Convert multiple chunk texts to vectors and store them in Qdrant in one upsert."""
-    from backend.app.vector.embeddings import embed_batch
-
-    chunk_ids = [p[0] for p in points]
-    texts = [p[1] for p in points]
-    payloads = [p[2] for p in points]
-    vectors = embed_batch(texts)
-
-    db.upsert(
-        collection_name=COLLECTION,
-        points=[
-            models.PointStruct(
-                id=chunk_id,
-                vector=vector,
-                payload=payload,
-            )
             for chunk_id, vector, payload in zip(chunk_ids, vectors, payloads)
         ],
     )
@@ -96,6 +75,8 @@ def search(question: str, limit: int = 5, document_ids: list[str] | None = None)
             ]
         )
 
+def search(question: str, limit: int = 5):
+    """Find the chunks whose meaning is closest to the question."""
     results = db.query_points(
         collection_name=COLLECTION,
         query=embed(question),
