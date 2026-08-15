@@ -1,2 +1,6 @@
 sentence-transformers
 qdrant-client
+pymupdf>=1.24.0
+pytesseract>=0.3.10
+pillow>=10.0.0
+pydantic>=2.5.0
