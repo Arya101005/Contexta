@@ -1,2 +1,15 @@
 sentence-transformers
+<<<<<<< HEAD
 qdrant-client
+=======
+qdrant-client
+pymupdf>=1.24.0
+pytesseract>=0.3.10
+pillow>=10.0.0
+pydantic>=2.5.0
+python-dotenv
+fastapi
+uvicorn[standard]
+sqlalchemy>=2.0.0
+psycopg2-binary
+>>>>>>> 4669588 (add retrieval cache and citations)
