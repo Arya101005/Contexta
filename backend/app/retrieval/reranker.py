@@ -1,38 +1,27 @@
-# reranker.py
-
-from sentence_transformers import CrossEncoder
+from sentence_transformers import CrossEncoder  # reranker model — scores query-document pairs
 
 
 class Reranker:
+    """Reranks retrieved chunks using a CrossEncoder for better relevance scoring."""
 
     def __init__(self):
-        self.model = CrossEncoder(
-            "BAAI/bge-reranker-large"
-        )
+        self.model = CrossEncoder("BAAI/bge-reranker-v2-m3")  # multilingual reranker
 
     def rerank(self, query, chunks, top_k=5):
+        """Score each chunk against the query and return the top_k most relevant."""
+        if not chunks:
+            return []
 
-        # Create query-document pairs
-        pairs = [
-            [query, chunk["text"]]
-            for chunk in chunks
-        ]
+        # CrossEncoder expects pairs of [query, document] strings
+        pairs = [[query, chunk.get("text", "")] for chunk in chunks]
+        scores = self.model.predict(pairs)  # run the reranker model on all pairs at once
 
-        # Calculate relevance scores
-        scores = self.model.predict(pairs)
-
-        # Attach score to every chunk
         for chunk, score in zip(chunks, scores):
-            chunk["rerank_score"] = float(score)
+            chunk["rerank_score"] = float(score)  # attach reranker score to each chunk
 
-        # Highest score first
-        chunks.sort(
-            key=lambda x: x["rerank_score"],
-            reverse=True
-        )
+        chunks.sort(key=lambda x: x["rerank_score"], reverse=True)  # highest score first
+        return chunks[:top_k]  # keep only the top_k most relevant chunks
 
-        return chunks[:top_k]
-
-    # Pipeline-compatible alias
     def rank(self, query, documents, top_k=5):
+        """Pipeline-compatible alias for rerank()."""
         return self.rerank(query, documents, top_k)
