@@ -29,6 +29,16 @@ if not db.collection_exists(COLLECTION):
         ),
     )
 
+# ensure payload index exists for doc_id filtering (required by Qdrant)
+try:
+    db.create_payload_index(
+        collection_name=COLLECTION,
+        field_name="doc_id",
+        field_type=models.PayloadSchemaType.KEYWORD,
+    )
+except Exception:
+    pass  # index already exists
+
 
 def store(chunk_id, text: str, payload: dict):
     """Convert a single text into a vector and upsert it into Qdrant."""
