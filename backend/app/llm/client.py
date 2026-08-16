@@ -19,7 +19,8 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1",  # Groq uses OpenAI-compatible API
 )
 
-MODEL_NAME = "llama-3.3-70b-versatile"  # the LLM model to use
+MODEL_NAME = os.getenv("LLM_MODEL", "llama-3.1-8b-instant")  # model name from .env
+LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "400"))  # max response tokens from .env
 
 
 def generate_answer(prompt: str) -> str:
@@ -34,7 +35,7 @@ def generate_answer(prompt: str) -> str:
                 }
             ],
             temperature=0.2,  # low temperature = more deterministic, factual answers
-            max_tokens=500,  # limit response length to control cost and latency
+            max_tokens=LLM_MAX_TOKENS,  # limit response length to control cost and latency
         )
 
         answer = response.choices[0].message.content  # extract the text from the response

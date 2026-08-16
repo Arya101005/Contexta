@@ -21,22 +21,23 @@ class Settings:
 
     LLM_API_KEY = os.getenv("LLM_API_KEY", "")  # LLM provider API key
     LLM_BASE_URL = os.getenv("LLM_BASE_URL", "")  # custom base URL if needed
-    LLM_MODEL = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")  # Groq model name
+    LLM_MODEL = os.getenv("LLM_MODEL", "llama-3.1-8b-instant")  # Groq model name
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq")  # provider identifier
 
     DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/contexta")  # PostgreSQL conn
 
     TOP_K = int(os.getenv("TOP_K", "15"))  # legacy generic top-k (kept for compat)
-    DENSE_TOP_K = int(os.getenv("DENSE_TOP_K", "15"))  # dense vector search result count
-    BM25_TOP_K = int(os.getenv("BM25_TOP_K", "15"))  # sparse BM25 search result count
-    RRF_TOP_K = int(os.getenv("RRF_TOP_K", "15"))  # final fused candidate count after RRF
-    RERANK_TOP_K = int(os.getenv("RERANK_TOP_K", "5"))  # chunks kept after CrossEncoder reranking
+    DENSE_TOP_K = int(os.getenv("DENSE_TOP_K", "10"))  # dense vector search result count
+    BM25_TOP_K = int(os.getenv("BM25_TOP_K", "10"))  # sparse BM25 search result count
+    RRF_TOP_K = int(os.getenv("RRF_TOP_K", "10"))  # final fused candidate count after RRF
+    RERANK_TOP_K = int(os.getenv("RERANK_TOP_K", "3"))  # chunks kept after CrossEncoder reranking
     RRF_K = int(os.getenv("RRF_K", "60"))  # RRF constant — lower = more weight to top ranks
 
     CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))  # target token count per text chunk
     CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))  # token overlap between adjacent chunks
 
     EVIDENCE_THRESHOLD = float(os.getenv("EVIDENCE_THRESHOLD", "-1.0"))  # min rerank score to trust answer
+    LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "400"))  # max tokens in LLM response
 
 
 settings = Settings()  # singleton config instance imported by other modules
