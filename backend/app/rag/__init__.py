@@ -1,7 +1,7 @@
 import logging  # structured logging
 from functools import lru_cache  # cache the pipeline so models load only once
 
-from backend.app.rag.pipeline import RAGPipeline  # the main orchestrator
+from backend.app.rag.pipeline import RAGPipeline, clear_query_cache  # pipeline + cache invalidation
 from backend.app.retrieval.retriever import HybridRetriever, get_bm25_index  # retrieval components
 from backend.app.retrieval.reranker import Reranker  # CrossEncoder reranker
 

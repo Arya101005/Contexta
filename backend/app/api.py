@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session  # database session type
 
 from backend.app.database import get_db  # dependency that yields a DB session
 from backend.app.models.models import ChatSession, Document, Message  # ORM models
-from backend.app.rag import build_pipeline, ingest_pdf  # RAG pipeline + PDF ingestion
+from backend.app.rag import build_pipeline, ingest_pdf, clear_query_cache  # RAG pipeline + PDF ingestion + cache
 from backend.app.vector.qdrant import delete_by_doc_id  # remove vectors from Qdrant
 from backend.app.retrieval.retriever import rebuild_bm25  # rebuild sparse index after changes
 
@@ -54,6 +54,8 @@ async def upload_document(
         document.status = "ready"  # ingestion succeeded
         db.commit()
         db.refresh(document)
+
+        clear_query_cache()  # invalidate cached queries since new document is available
 
         return {
             "message": "Document uploaded successfully",
@@ -120,6 +122,7 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     rebuild_bm25(db)  # rebuild sparse index after removal
+    clear_query_cache()  # invalidate cached queries since document was deleted
 
     return {"message": "Document deleted successfully", "document_id": document_id}
 
