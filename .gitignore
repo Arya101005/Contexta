@@ -1,5 +1,13 @@
 # Python cache
 __pycache__/
 *.py[cod]
-.env
 .venv/
+
+# Environment
+.env
+
+# Uploaded files
+backend/uploads/
+
+# SQLite (not used anymore)
+*.db
